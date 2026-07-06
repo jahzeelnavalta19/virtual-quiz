@@ -1,9 +1,33 @@
 {
-  "name":"Virtual Quiz",
-  "short_name":"VQuiz",
-  "description":"Interactive quiz platform for students",
-  "start_url":"/",
-  "display":"standalone",
-  "background_color":"#0a0a1a",
-  "theme_color":"#e94560"
+  "name": "Virtual Quiz",
+  "short_name": "VQuiz",
+  "description": "Interactive quiz platform for students",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a1a",
+  "theme_color": "#e94560",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot1.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Quiz Question Screen"
+    }
+  ]
 }
