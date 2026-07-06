@@ -7,6 +7,7 @@
   "background_color": "#0a0a1a",
   "theme_color": "#e94560",
   "orientation": "portrait",
+  "id": "virtual-quiz-app-2024",
   "icons": [
     {
       "src": "icon-192.png",
@@ -19,15 +20,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "screenshot1.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Quiz Question Screen"
     }
   ]
 }
