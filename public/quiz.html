@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="manifest" href="/manifest.json">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
 <title>📝 Virtual Quiz</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="style.css">
 <style>.proceed-btn{margin-top:15px;display:none;}.proceed-btn.show{display:inline-block;}.choice-btn{transition:all 0.2s ease;}</style>
 </head>
@@ -35,5 +36,6 @@ function submitAnswer(i){clearInterval(ti);an[cq]=i;if(i>=0&&i===qs[cq].c)sc++;s
 function ft(s){const m=Math.floor(s/60),se=s%60;return m+':'+(se<10?'0':'')+se;}
 function showR(){su(true);document.getElementById('quiz-screen').style.display='none';document.getElementById('result-screen').style.display='block';const pct=Math.round((sc/tq)*100);document.getElementById('final-score').textContent=sc;document.getElementById('final-percent').textContent=pct+'%';let em,msg;if(pct>=90){em='🎉';msg='Excellent, '+pn+'!';}else if(pct>=75){em='👏';msg='Great job, '+pn+'!';}else if(pct>=50){em='💪';msg='Good effort, '+pn+'!';}else{em='📚';msg='Keep studying, '+pn+'!';}document.getElementById('result-emoji').textContent=em;document.getElementById('result-message').textContent=msg;document.getElementById('answer-review').innerHTML='<h4>📋 Your Answers:</h4>'+qs.map((q,i)=>{const ua=an[i],cor=ua===q.c;return`<div style="padding:8px;margin:5px 0;border-radius:8px;background:${cor?'rgba(0,255,136,0.1)':'rgba(233,69,96,0.1)'};">${cor?'✅':'❌'} <strong>Q${q.id+1}:</strong> ${q.q}<br><span style="color:#aaa;">Your answer: ${ua!==null&&ua>=0?q.a[ua]:'No answer'}</span></div>`;}).join('');}
 </script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js');}</script>
 </body>
 </html>
