@@ -9,6 +9,10 @@ const io = new Server(server);
 
 app.use(express.static('public'));
 
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'quiz.html'));
+});
+
 app.get('/manifest.json', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
 });

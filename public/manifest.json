@@ -2,7 +2,7 @@
   "name":"Virtual Quiz",
   "short_name":"VQuiz",
   "description":"Interactive quiz platform for students",
-  "start_url":"/quiz.html",
+  "start_url":"/",
   "display":"standalone",
   "background_color":"#0a0a1a",
   "theme_color":"#e94560"
