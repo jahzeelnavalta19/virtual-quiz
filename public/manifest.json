@@ -1,8 +1,8 @@
 {
-  "name": "Virtual Quiz",
-  "short_name": "VQuiz",
-  "start_url": "/quiz.html",
-  "display": "standalone",
-  "background_color": "#0a0a1a",
-  "theme_color": "#e94560"
+  "name":"Virtual Quiz",
+  "short_name":"VQuiz",
+  "start_url":"/quiz.html",
+  "display":"standalone",
+  "background_color":"#0a0a1a",
+  "theme_color":"#e94560"
 }

@@ -1,5 +1,6 @@
 const express = require('express');
 const http = require('http');
+const path = require('path');
 const { Server } = require('socket.io');
 
 const app = express();
@@ -7,6 +8,10 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 app.use(express.static('public'));
+
+app.get('/manifest.json', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
+});
 
 let quizSessions = {};
 let kahootGames = {};
@@ -25,8 +30,6 @@ function getQuestionTexts(subject){const qs=subject==='ec'?ecFullQuestions:shuff
 function getFullQuestions(subject){if(subject==='ec')return ecFullQuestions;return shuffleArray(milFullQuestions).slice(0,30);}
 
 io.on('connection',(socket)=>{
-  console.log('Connected: '+socket.id);
-
   socket.on('quiz-create-session',(data)=>{const code=generateCode();quizSessions[code]={players:{},subject:data.subject||'mil',timer:data.timer||0,hostSocket:socket.id,started:false,questionTexts:getQuestionTexts(data.subject),studentQuestions:{}};socket.join(`quiz-host-${code}`);socket.quizCode=code;socket.isQuizHost=true;socket.emit('quiz-session-created',{code,subject:data.subject,timer:data.timer,totalQuestions:30});});
   socket.on('quiz-start',(data)=>{const code=data.code||socket.quizCode;if(!code||!quizSessions[code])return;quizSessions[code].started=true;Object.keys(quizSessions[code].players).forEach(id=>{if(!quizSessions[code].players[id].waitingForApproval)io.to(id).emit('quiz-started',{subject:quizSessions[code].subject,timer:quizSessions[code].timer});});});
   socket.on('quiz-join',(data)=>{const{code,name}=data;if(!quizSessions[code]){socket.emit('quiz-join-error',{message:'Session not found!'});return;}const ep=Object.entries(quizSessions[code].players).find(([id,p])=>p.name===name&&id!==socket.id);if(ep){const[oid,od]=ep;if(quizSessions[code].studentQuestions[oid]){quizSessions[code].studentQuestions[socket.id]=quizSessions[code].studentQuestions[oid];delete quizSessions[code].studentQuestions[oid];}quizSessions[code].players[socket.id]={...od,loggedIn:true,waitingForApproval:true,oldSocketId:oid};delete quizSessions[code].players[oid];socket.join(`quiz-${code}`);socket.quizCode=code;socket.playerName=name;socket.emit('quiz-joined',{code,name,waiting:true});}else{socket.join(`quiz-${code}`);socket.quizCode=code;socket.playerName=name;const needsApproval=quizSessions[code].started;quizSessions[code].players[socket.id]={name,score:0,total:30,currentQuestion:0,finished:false,loggedIn:true,answering:false,answers:[],waitingForApproval:needsApproval};socket.emit('quiz-joined',{code,name,waiting:needsApproval});}io.to(`quiz-host-${code}`).emit('quiz-scores-update',{scores:getScores(code)});});
