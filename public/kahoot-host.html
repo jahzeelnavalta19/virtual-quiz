@@ -6,17 +6,23 @@
 <title>🎮 Game Mode - Host</title>
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-<style>#qrcode canvas,#qrcode img{border-radius:20px;padding:12px;background:white;box-shadow:0 8px 30px rgba(0,0,0,0.3);}</style>
+<style>
+#qrcode canvas,#qrcode img{border-radius:20px;padding:12px;background:white;box-shadow:0 8px 30px rgba(0,0,0,0.3);}
+.popup-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;justify-content:center;align-items:center;z-index:100;}
+.popup-box{background:#16213e;border-radius:24px;padding:40px;text-align:center;max-width:400px;width:90%;border:2px solid #e94560;box-shadow:0 0 50px rgba(233,69,96,0.3);}
+.popup-box h2{color:#ffd700;margin-bottom:20px;}
+.popup-box select{width:100%;padding:14px;font-size:1.1em;border-radius:50px;background:#0a0a1a;color:white;border:2px solid #e94560;text-align:center;margin:15px 0;}
+</style>
 </head>
 <body>
 <canvas class="particles" id="particles"></canvas>
-<div class="container">
-<div id="lobby-screen"><h1>🎮 Game Mode</h1><h2>Host Screen</h2>
-<div id="subject-select-area" class="glass-card" style="margin-bottom:15px;">
-<h3 style="margin-bottom:15px;">Select Subject & Section</h3>
-<div style="margin:10px 0;">
-<label style="color:#aaa;display:block;margin-bottom:5px;">Section</label>
-<select id="kahoot-section-select" style="padding:12px;font-size:1em;border-radius:50px;background:#16213e;color:white;border:2px solid #e94560;width:80%;text-align:center;">
+
+<!-- SECTION POPUP -->
+<div class="popup-overlay" id="section-popup">
+<div class="popup-box">
+<h2>📋 Select Section</h2>
+<p style="color:#aaa;margin-bottom:10px;">Choose the class section for this game</p>
+<select id="kahoot-section-select">
 <option value="11-TAURUS">11-TAURUS</option>
 <option value="11-GEMINI">11-GEMINI</option>
 <option value="11-AQUILA">11-AQUILA</option>
@@ -26,10 +32,14 @@
 <option value="12-PYTHAGORAS">12-PYTHAGORAS</option>
 <option value="11-AQUARIUS">11-AQUARIUS</option>
 </select>
+<p style="color:#aaa;margin:15px 0;">Then choose a subject:</p>
+<button class="btn btn-primary" onclick="startWithSubject('mil')" style="background:#e94560;display:block;width:100%;margin:8px 0;">📚 Media and Information Literacy 12</button>
+<button class="btn btn-primary" onclick="startWithSubject('ec')" style="background:#0f3460;display:block;width:100%;margin:8px 0;">📝 Effective Communication 11</button>
 </div>
-<button class="btn btn-primary" onclick="selectSubject('mil')" style="background:#e94560;display:block;width:100%;margin:10px 0;">📚 Media and Information Literacy 12</button>
-<button class="btn btn-primary" onclick="selectSubject('ec')" style="background:#0f3460;display:block;width:100%;margin:10px 0;">📝 Effective Communication 11</button>
 </div>
+
+<div class="container">
+<div id="lobby-screen"><h1>🎮 Game Mode</h1><h2>Host Screen</h2>
 <div class="glass-card pin-display" id="pin-display" style="display:none;"><div class="pin-label">Game PIN</div><div class="pin-number" id="game-pin">----</div><div style="margin-top:12px;color:#aaa;">Join at: <span id="join-url" style="color:#ffd700;"></span></div><div id="qrcode" style="display:flex;justify-content:center;margin:15px 0;"></div><p style="color:#aaa;font-size:0.85em;">📱 Scan to join instantly!</p></div>
 <div class="glass-card"><div class="player-list" id="player-list"><p style="color:#aaa;">Waiting for players...</p></div><p>Players: <strong><span id="player-count">0</span></strong></p></div><button class="btn btn-success" id="start-btn" onclick="startGame()" disabled>🚀 Start Game</button></div>
 <div id="countdown-screen" style="display:none;"><div class="countdown" id="countdown-number">3</div><p style="font-size:1.6em;color:#aaa;">Get ready...</p></div>
@@ -42,7 +52,7 @@
 const canvas=document.getElementById('particles'),ctx=canvas.getContext('2d');canvas.width=window.innerWidth;canvas.height=window.innerHeight;const pts=[];for(let i=0;i<40;i++)pts.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+1,speed:Math.random()*0.5+0.2,opacity:Math.random()*0.4+0.1});function anim(){ctx.clearRect(0,0,canvas.width,canvas.height);pts.forEach(p=>{p.y-=p.speed;if(p.y<-10){p.y=canvas.height+10;p.x=Math.random()*canvas.width;}ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,255,${p.opacity})`;ctx.fill();});requestAnimationFrame(anim);}anim();
 const AudioContext=window.AudioContext||window.webkitAudioContext;let audioCtx;function initAudio(){if(!audioCtx)audioCtx=new AudioContext();}function playBeep(f,d,t='sine',v=0.3){if(!audioCtx)return;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=t;o.frequency.value=f;g.gain.value=v;g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+d);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+d);}function playTick(){playBeep(800,0.15,'square',0.2);}function playGo(){playBeep(1200,0.5,'square',0.4);}function playQStart(){playBeep(523,0.1);setTimeout(()=>playBeep(659,0.1),100);setTimeout(()=>playBeep(784,0.2),200);}function playTimesUp(){playBeep(200,0.5,'sawtooth',0.3);}function playReveal(){playBeep(600,0.1);setTimeout(()=>playBeep(800,0.1),150);setTimeout(()=>playBeep(1000,0.2),300);}function playDouble(){playBeep(880,0.15,'square',0.4);setTimeout(()=>playBeep(1100,0.2,'square',0.5),150);}
 const socket=io();let gamePIN='',timerInterval=null,timeLeft=0;
-function selectSubject(s){document.getElementById('subject-select-area').style.display='none';document.getElementById('pin-display').style.display='block';const sec=document.getElementById('kahoot-section-select').value;socket.emit('kahoot-create',{subject:s,section:sec});}
+function startWithSubject(s){document.getElementById('section-popup').style.display='none';document.getElementById('pin-display').style.display='block';const sec=document.getElementById('kahoot-section-select').value;socket.emit('kahoot-create',{subject:s,section:sec});}
 socket.on('kahoot-created',(d)=>{gamePIN=d.pin;document.getElementById('game-pin').textContent=gamePIN;document.getElementById('game-pin-display').textContent=gamePIN;document.getElementById('game-pin-display2').textContent=gamePIN;const url='https://virtual-quiz.onrender.com/kahoot-player.html';document.getElementById('join-url').textContent=url;const q=document.getElementById('qrcode');q.innerHTML='';new QRCode(q,{text:url,width:180,height:180,colorDark:"#1a1a2e",colorLight:"#ffffff"});});
 socket.on('kahoot-player-joined',(d)=>{updatePlayers(d.players);document.getElementById('player-count').textContent=d.count;document.getElementById('start-btn').disabled=d.count<1;});
 socket.on('kahoot-player-left',(d)=>{updatePlayers(d.players);document.getElementById('player-count').textContent=d.count;document.getElementById('start-btn').disabled=d.count<1;});
